@@ -31,7 +31,7 @@ def extract_market_data__callable(**context: Dict[str, Any]) -> List[Dict[str, A
         raw_dataset (List[Dict[str, Any]])
     """
 
-    # Instantiate a list of tickets that will be pulled and looped over
+    # Instantiate a list of tickers that will be pulled and looped over
     stock_tickers: List[str] = [
         "AAPL",
         "AMZN"
@@ -148,27 +148,34 @@ def transform_market_data__callable(flattened_dataset: List[Any]) -> pd.DataFram
 
 
 # Define a "load" helper
-def load_market_data__callable(transformed_dataframe: pd.DataFrame) -> None:
+def load_market_data__callable(transformed_dataframe: pd.DataFrame, **context: Dict[str, Any]) -> None:
     """
     Description:
         Overwrite the existing table with the new results, using the .to_sql() pandas method
 
     Params:
         transformed_dataframe (pd.DataFrame)
+        **context (Dict[str, Any])
 
     Return:
         None
     """
 
     # Pull the connection
-    market_database_conn: Engine = PostgresHook("postgres_market_conn").get_sqlalchemy_engine()
+    market_database_hook: PostgresHook = PostgresHook("postgres_market_conn")
+    market_database_conn: Engine = market_database_hook.get_sqlalchemy_engine()
+
+    # Delete existing rows
+    query: str = f"DELETE FROM market.transformed_market_data WHERE market_date = '{context.get('ds')}'"
+    market_database_hook.run(query)
 
     # Load the table to Postgres, replace if it exists
     transformed_dataframe.to_sql(
         name="transformed_market_data",
         con=market_database_conn,
         schema="market",
-        if_exists="replace"
+        if_exists="append",
+        index=False
     )
 
 # Last line of file

@@ -38,10 +38,10 @@ TODO: Add points about cleaning up the default "example" DAGs
 ## Development
 
 ### Market ETL
-The first DAG that I built was a basic ETL pipeline which  market data from the Polygon API, transformed the 
- response, performed a data quality check, and loaded the data to a Postgres database. First, this DAG was implemented 
- using "traditional" Airflow operators, and then later, with the TaskFlow API. To configure the API key that I'd be 
- using to pull data from the Polygon API, I ran the following command: 
+The first DAG that I built was a basic ETL pipeline which  market data from the Polygon API, flattened the JSON that was
+ returned in the response, transformed the flattened data, and loaded the data to a Postgres database. First, this DAG 
+ was implemented using "traditional" Airflow operators, and then later, with the TaskFlow API. To configure the API key 
+ that I'd be using to pull data from the Polygon API, I ran the following command: 
 
 ```commandline
 > astro dev run variables set POLYGON_API_KEY *****
@@ -58,6 +58,22 @@ To create a Postgres connection, I ran the following:
     --conn-port 5432 \
     --conn-schema postgres \
     postgres_market_conn
+```
+
+The table was initially created with the command below. This allowed for idempotency to be built into the pipeline (the
+ `DELETE` command before the DataFrame is appended to the table each run). See below:
+
+``` {sql}
+CREATE TABLE market.transformed_market_data (
+	market_date TEXT,
+	ticker TEXT,
+	open_price FLOAT,
+	high_price FLOAT,
+	low_price FLOAT,
+	close_price FLOAT,
+	change FLOAT,
+	volume FLOAT
+);
 ```
 
 ## Testing

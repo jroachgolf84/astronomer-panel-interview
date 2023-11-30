@@ -2,7 +2,7 @@
 market_etl__traditional.py
 
 Description:
-    A DAG that extracts data from the Polygon API, transforms it, validates it, and loads the cleaned data to a Postgres
+    A DAG that extracts data from the Polygon API, flattens it, transforms it, and loads the cleaned data to a Postgres
     database.
 
 Author: Jake Roach
@@ -23,7 +23,7 @@ from include.market_etl__traditional__helpers import load_market_data__callable
 
 # Define the DAG to run for a month
 with DAG(
-    dag_id="market_etl.traditional",
+    dag_id="market_etl__traditional",
     start_date=datetime(2023, 8, 1),
     end_date=datetime(2023, 8, 31),
     schedule_interval="0 9 * * 1-5",
