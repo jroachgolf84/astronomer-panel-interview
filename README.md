@@ -33,7 +33,9 @@ The appropriate files were created at the root of this repository, and I validat
  (locally) by running the command `astro dev start`. After about a minute, my default web browser opened to 
  `localhost:8080`, and I was able to log into the Airflow UI. Success!
 
-TODO: Add points about cleaning up the default "example" DAGs
+After each of the four DAGs outlined in the requirements were written and tested, the example DAG artifacts were removed
+ from this repository. There were a few places that needed to be cleaned up; both in the `dags/` directory, as well as in 
+ the `tests/` directory.
 
 ## Development
 
@@ -75,6 +77,13 @@ CREATE TABLE market.transformed_market_data (
 	volume FLOAT
 );
 ```
+
+When refactoring the DAG to use the TaskFlow API, I wanted to make sure the DAG definition was verbose, but also,
+ not cluttered. To do this, I only defined one task within the DAG definition, and the rest were defined in the
+ `include/market_etl__taskflow_api__helpers.py` file. This gives the reader (or reviewer) a taste of the possibilities
+ that the TaskFlow API offers.
+
+### Daily Operational Data Pipeline
 
 ## Testing
 

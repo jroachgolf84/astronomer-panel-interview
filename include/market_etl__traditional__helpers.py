@@ -38,7 +38,7 @@ def extract_market_data__callable(**context: Dict[str, Any]) -> List[Dict[str, A
     ]
 
     # Set variables
-    POLYGON_API_KEY: str = Variable.get("POLYGON_API_KEY")
+    polygon_api_key: str = Variable.get("POLYGON_API_KEY")
     ds: str = context.get("ds")
 
     # Create a list to append the response data to
@@ -47,7 +47,7 @@ def extract_market_data__callable(**context: Dict[str, Any]) -> List[Dict[str, A
     # Loop through each ticker
     for stock_ticker in stock_tickers:
         # Build the URL, and make a request to the API
-        url: str = f"https://api.polygon.io/v1/open-close/{stock_ticker}/{ds}?adjusted=true&apiKey={POLYGON_API_KEY}"
+        url: str = f"https://api.polygon.io/v1/open-close/{stock_ticker}/{ds}?adjusted=true&apiKey={polygon_api_key}"
         response: requests.Response = requests.get(url)
         raw_dataset.append(response.json())
 
@@ -64,7 +64,6 @@ def flatten_market_data__callable(raw_dataset: List[Dict[str, Any]]) -> List[Any
 
     Params:
         raw_data (List[Dict[str, Any]])
-        **context (Dict[str, Any])
 
     Returns:
         flattened_dataset (List[Any])
