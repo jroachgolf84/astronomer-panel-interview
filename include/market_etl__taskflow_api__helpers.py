@@ -5,6 +5,10 @@ Description:
     File that contains the helpers for the DAG instantiated with the TaskFlow API in the market_etl__traditional.py
     file.
 
+TODO:
+    - Make the "transform" and "load" tasks transient, pulling from the traditional functions (to avoid "copying" and
+      pasting code?)
+
 Author: Jake Roach
 Date: 2023-11-29
 """

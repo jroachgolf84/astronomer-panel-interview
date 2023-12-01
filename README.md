@@ -16,7 +16,7 @@ TODO: Add an overview at the end of the project
 
 ## Environment Creation
 
-To create an Astro project, the Astro CLI is the best tool to use. This was already installed on  my local machine, 
+To create an Astro project, the Astro CLI is the *best* tool to use. This was already installed on  my local machine, 
  which I validated with the following command:
 
 ```commandline
@@ -33,7 +33,7 @@ The appropriate files were created at the root of this repository, and I validat
  (locally) by running the command `astro dev start`. After about a minute, my default web browser opened to 
  `localhost:8080`, and I was able to log into the Airflow UI. Success!
 
-After each of the four DAGs outlined in the requirements were written and tested, the example DAG artifacts were removed
+Update: After each of the four DAGs outlined in the requirements were written and tested, the example DAG artifacts were removed
  from this repository. There were a few places that needed to be cleaned up; both in the `dags/` directory, as well as in 
  the `tests/` directory.
 
@@ -87,6 +87,13 @@ When refactoring the DAG to use the TaskFlow API, I wanted to make sure the DAG 
 In addition to running tasks sequentially, Airflow can run tasks in parallel. In the `daily_opeartional_view_update` 
  DAG, four SQL queries are run, server-side in parallel, all orchestrated by Airflow. Without an orchestration tool like
  Airflow, Data Engineers would be left to schedule, run, and troubleshoot these pipelines in another manner.
+
+What's great about the `PostgresOperator` (which was used to `CREATE OR REPLACE` a number of views in this DAG) is the 
+ ease of connecting to a Postgres database, and the ability to pass in templated fields to the queries. Just by passing 
+ a string with the name of the connection configured using the Astro CLI (or UI), a connection is made to the Postgres 
+ database in a secure fashion. Since the value passed to the `sql` parameter is templated, all the fields referenced at 
+ this link () can be used within the SQL query. For more complex queries, a path to a `.sql` file can be passed to the 
+ `sql` parameter, making DAG definitions cleaner, and easier to troubleshoot.
 
 Note, a new Postgres connection was created, with name `postgres_daily_operational_conn`. This was done in a similar 
  manner as before, but a different name was used, to ensure verbosity.
