@@ -84,6 +84,8 @@ When refactoring the DAG to use the TaskFlow API, I wanted to make sure the DAG 
  that the TaskFlow API offers.
 
 ### Daily Operational Data Pipeline
+In addition to running tasks sequentially, Airflow can run tasks in parallel. In the `daily_opeartional__view_update` 
+ DAG, four SQL queries are run, server-side in parallel, all orchestrated by Airflow.
 
 ## Testing
 
