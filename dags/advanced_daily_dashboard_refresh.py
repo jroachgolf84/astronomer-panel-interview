@@ -1,9 +1,9 @@
 """
-advanced_market_etl.py
+advanced_daily_dashboard_refresh.py
 
 Description:
     A DAG that extracts, transforms, and loads data from the Polygon API as part of a larger data pipeline, with a
-    number of complex dependencies.
+    number of complex dependencies. It also pulls data from Postgres into S3 and Snowflake, later archiving that data.
 
 Author: Jake Roach
 Date: 2023-12-02
@@ -17,7 +17,11 @@ from airflow.utils.task_group import TaskGroup
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 
-from include.advanced_market_etl__helpers import market_holidays, extract_market_data, replication_task_config
+from include.advanced_daily_dashboard_refresh__helpers import (
+    market_holidays,
+    extract_market_data,
+    replication_task_config
+)
 from include.market_etl__taskflow_api__helpers import flatten_market_data, transform_market_data, load_market_data
 from plugins.custom_postgres_to_s3_operator import CustomPostgresToS3Operator
 from plugins.custom_s3_to_snowflake_operator import CustomS3ToSnowflakeOperator
@@ -25,7 +29,7 @@ from plugins.custom_s3_to_snowflake_operator import CustomS3ToSnowflakeOperator
 
 # Instantiate the DAG
 with DAG(
-    dag_id="advanced_market_etl",
+    dag_id="advanced_daily_dashboard_refresh",
     # Use a different date range than the previously defined DAGs
     start_date=datetime(2023, 5, 1),
     end_date=datetime(2023, 5, 31),
@@ -75,6 +79,7 @@ with DAG(
         flattened_data = flatten_market_data(raw_data)
         transformed_data = transform_market_data(flattened_data)
         load_market_data(transformed_data)
+
 
     # Create TaskGroups
     replication_task_groups: List[TaskGroup] = []

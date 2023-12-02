@@ -110,6 +110,49 @@ Adding this to the DAG definition allowed for file names in the `include/sql` di
 Note, a new Postgres connection was created, with name `postgres_daily_operational_conn`. This was done in a similar 
  manner as before (using the Astro CLI), but a different name was used, to ensure verbosity.
 
+### Advanced Daily Dashboard Refresh
+Sometimes, operational dashboards rely on a dataset that needs to be regularly refreshed. What's the best tool to do 
+ this with? Airflow! Here, the `advanced_daily_dashboard_refresh` DAG pulls data from disparate sources, and transforms,
+ persists, and loads the data as needed. After this DAG finishes running (daily), a tool like Tableau, Looker, or Power 
+ BI connected to the resulting data sources will have the most up-to-date data to populate graphics and other metrics. 
+ This is a truly powerful use-case for Airflow, and can provide immediate value not only to Data Teams, but the 
+ stakeholders these tools are built for. Below, you'll find a more in-depth description of what this DAG does, and how 
+ it was built.
+
+Some of the logic from the DAGs built before were used to build this more complex DAG. The `@task.branch()` decorator 
+ was used to determine whether to trigger a market data workflow, or to notify the downstream stakeholder that the 
+ market was closed. If the market was opened, a task group defined using the TaskFlow API was invoked, extracting,
+ flattening, transforming, and loading the data, similar to what was done in the `market_etl__taskflow_api` DAG. To 
+ define this task group using the TaskFlow API, the following code was written:
+
+```python
+...
+
+    @task_group(group_id="process_market_data")
+    def process_market_data():
+        # Use previously defined tasks for market work (using the TaskFlow API)
+        raw_data = extract_market_data()
+        flattened_data = flatten_market_data(raw_data)
+        transformed_data = transform_market_data(flattened_data)
+        load_market_data(transformed_data)
+
+...
+```
+
+In parallel, four tradition task groups were created using `with TaskGroup(...)` to move data from Postgres to S3, 
+ before also moving this data to Snowflake. These task groups were dynamically-generated using a list of dictionaries 
+ defined in the `include/advanced_daily_dashboard_refresh__helpers.py` file. Within each of these task groups, two 
+ custom operators were instantiated. These were the `CustomPostgresToS3Operator`, and the `CustomS3ToSnowflake`
+ operator. These were built in the `plugins/` directory, and inherited from the `BaseOperator`. This custom operators
+ where somewhat transient, and only printed the actions that would be performed. The ability to build custom operators
+ illustrate the extensibility of Airflow, and it's ability to cater to a wide range of users via abstraction. 
+
+After the data was persisted in S3 and moved into Snowflake, an `EmptyOperator` was used to simulate archiving the data
+ previously moved to S3. For the entire graph view of the DAG, please see below:
+
+![Graph view of advanced_daily_dashboard_refresh DAG](./documentation/advanced_daily_dashboard_refresh_graph_view.png)
+  
+
 ## Testing
 
 ## Obstacles
