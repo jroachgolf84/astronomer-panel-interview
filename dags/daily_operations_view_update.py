@@ -42,6 +42,7 @@ with DAG(
         dag=dag,
         task_id="update_guest_attendance_view",
         postgres_conn_id="postgres_daily_operational_conn",
+        # Query for verbosity, there is also a file for this
         sql="""
         CREATE OR REPLACE VIEW daily_operations.admission_by_entrance AS (
             SELECT
