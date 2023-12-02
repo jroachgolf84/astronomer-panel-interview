@@ -92,11 +92,23 @@ What's great about the `PostgresOperator` (which was used to `CREATE OR REPLACE`
  ease of connecting to a Postgres database, and the ability to pass in templated fields to the queries. Just by passing 
  a string with the name of the connection configured using the Astro CLI (or UI), a connection is made to the Postgres 
  database in a secure fashion. Since the value passed to the `sql` parameter is templated, all the fields referenced at 
- this link () can be used within the SQL query. For more complex queries, a path to a `.sql` file can be passed to the 
- `sql` parameter, making DAG definitions cleaner, and easier to troubleshoot.
+ this link (https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html) can be used within the SQL query. 
+ For more complex queries, a path to a `.sql` file can be passed to the `sql` parameter, making DAG definitions cleaner, 
+ and easier to troubleshoot. To customize where these `.sql` files are stored within the project, the a path can be 
+ passed to the `template_searchpath` parameter in the DAG definition. In this DAG, the following was added to the DAG
+ definition:
+
+```python
+...
+template_searchpath="include/sql",
+...
+```
+
+Adding this to the DAG definition allowed for file names in the `include/sql` directory to be passed to the `sql` 
+ parameter of the `PostgresOperator`, executing the query in the file when the DAG was run.
 
 Note, a new Postgres connection was created, with name `postgres_daily_operational_conn`. This was done in a similar 
- manner as before, but a different name was used, to ensure verbosity.
+ manner as before (using the Astro CLI), but a different name was used, to ensure verbosity.
 
 ## Testing
 

@@ -6,10 +6,6 @@ Description:
     concurrently, similar to a task a Data Engineer, Analyst, or Scientist may have to run daily at the beginning of
     each work day if there weren't to have a tool like Airflow.
 
-TODO:
-    - Update the existing SQL query
-    - Add a .sql file in a directory
-
 Author: Jake Roach
 Date: 2023-11-30
 """
@@ -29,6 +25,7 @@ with DAG(
     schedule_interval="0 12 * * *",
     catchup=True,
     max_active_runs=1,
+    template_searchpath="include/sql",  # This path can be searched for templated SQL queries (in .sql files)
     default_args={
         "retries": 3,
         "retry_delay": timedelta(minutes=1)
@@ -65,42 +62,21 @@ with DAG(
         dag=dag,
         task_id="update_inventory_view",
         postgres_conn_id="postgres_daily_operational_conn",
-        sql="""
-        CREATE OR REPLACE VIEW daily_operations.summarized_guest_attendance AS (
-            SELECT
-                *
-            FROM daily_operations.inventory AS inventory
-            WHERE inventory.inventory_date = '{{ ds }}'
-        );
-        """
+        sql="update_inventory_view.sql"
     )
 
     update_item_sales_view: PostgresOperator = PostgresOperator(
         dag=dag,
         task_id="update_item_sales_view",
         postgres_conn_id="postgres_daily_operational_conn",
-        sql="""
-        CREATE OR REPLACE VIEW daily_operations.summarized_item_sales AS (
-            SELECT
-                *
-            FROM daily_operations.item_sales AS item_sales
-            WHERE item_sales.sales_date = '{{ ds }}'
-        );
-        """
+        sql="update_item_sales_view.sql"
     )
 
     update_labor_view: PostgresOperator = PostgresOperator(
         dag=dag,
         task_id="update_labor_view",
         postgres_conn_id="postgres_daily_operational_conn",
-        sql="""
-        CREATE OR REPLACE VIEW daily_operations.summarized_labor AS (
-            SELECT
-                *
-            FROM daily_operations.labor AS labor
-            WHERE labor.labor_date = '{{ ds }}'
-        );
-        """
+        sql="update_labor_view.sql"
     )
 
     # Create a transient end task
