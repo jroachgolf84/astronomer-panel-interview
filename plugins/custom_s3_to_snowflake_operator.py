@@ -38,7 +38,7 @@ class CustomS3ToSnowflakeOperator(BaseOperator):
         # Instantiate variables
         super().__init__(**kwargs)
         self.aws_conn_id = aws_conn_id
-        self.s3_bucket = s3_bucket,
+        self.s3_bucket = s3_bucket
         self.s3_key = s3_key
         self.snowflake_conn_id = snowflake_conn_id
         self.snowflake_stage = snowflake_stage
