@@ -2,17 +2,28 @@
 
 Welcome! This repo contains all the materials prepared for the Astronomer Field Engineer Panel Interview, for Jake 
  Roach. Three DAGs were written, each meeting the requirements outlined in the 
- `Astronomer Field Engineering Exercise.pdf` file in the root of this repository. These DAGs were tested in a local, 
- development Airflow environment created used the Astro CLI. For more details about the development and testing process, 
- please see the respective **Environment Creation**, **Development**, and **Testing** sections below. A high-level 
- overview of the entire process and obstacles encountered are also detailed below. Please feel free to reach out to Jake
- Roach via email (jroachgolf84@outlook.com) with any questions about the contents of this repository.
+ `Astronomer Field Engineering Exercise.pdf` file in the `documentation/` directory of this repository. These DAGs were 
+ tested in a local, development Airflow environment created used the Astro CLI. For more details about the development 
+ and testing process, please see the respective **Environment Creation**, **Development**, and **Testing** sections 
+ below. A high-level overview of the entire process and obstacles encountered are also detailed below. Please feel free 
+ to reach out to Jake Roach via email (jroachgolf84@outlook.com) with any questions about the contents of this 
+ repository.
 
 ## Table of Contents
 TODO: Make sure to add a table of contents here
 
 ## Overview
-TODO: Add an overview at the end of the project
+While this project was prepared for the Astronomer Field Engineer Panel Interview, an alternate scenario was created as
+ a part of this exercise. This scenario is best summarized with the statement below:
+
+> You have a data team manually building and running data pipelines, creating analyses, and developing models, but you
+ don't have a tool to centrally maange all of these moving parts.
+
+To better show how Airflow could help solve this problem, and provide a centralized tool to develop, deploy, and 
+ maintain data pipelines, four pipelines where developed, as outlined in the **Development** section below. These DAGs
+ illustrate how common data workflows can be created as Airflow DAGs using the Astro CLI and the Airflow framework.
+ This `README.md` is more technical in nature, and complements the presentation to be used during the Panel Interview,
+ which is available in the `documentation/` directory. Happy reading!
 
 ## Environment Creation
 
