@@ -10,7 +10,17 @@ Welcome! This repo contains all the materials prepared for the Astronomer Field 
  repository.
 
 ## Table of Contents
-TODO: Make sure to add a table of contents here
+1. [Overview](#overview)
+2. [Environment Creation](#environment-creation)
+3. [Development](#development)
+   1. [Market ETL Data Pipeline](#market-etl-dag)
+   2. [Daily Operational Data Pipeline](#daily-operational-dag)
+   3. [Advanced Daily Dashboard Refresh Data Pipeline](#advanced-daily-dashboard-refresh-dag)
+4. [Testing](#testing)
+   1. [Using the Astro CLI](#using-the-astro-cli)
+   2. [Unit Testing](#unit-testing)
+   3. [End-to-end Testing](#end-to-end-testing)
+5. [Obstacles](#obstacles)
 
 ## Overview
 While this project was prepared for the Astronomer Field Engineer Panel Interview, an alternate scenario was created as
@@ -50,7 +60,7 @@ Update: After each of the four DAGs outlined in the requirements were written an
 
 ## Development
 
-### Market ETL
+### Market ETL DAG
 The first DAG that I built was a basic ETL pipeline which  market data from the Polygon API, flattened the JSON that was
  returned in the response, transformed the flattened data, and loaded the data to a Postgres database. First, this DAG 
  was implemented using "traditional" Airflow operators, and then later, with the TaskFlow API. To configure the API key 
@@ -94,7 +104,7 @@ When refactoring the DAG to use the TaskFlow API, I wanted to make sure the DAG 
  `include/market_etl__taskflow_api__helpers.py` file. This gives the reader (or reviewer) a taste of the possibilities
  that the TaskFlow API offers.
 
-### Daily Operational Data Pipeline
+### Daily Operational DAG
 In addition to running tasks sequentially, Airflow can run tasks in parallel. In the `daily_opeartional_view_update` 
  DAG, four SQL queries are run, server-side in parallel, all orchestrated by Airflow. Without an orchestration tool like
  Airflow, Data Engineers would be left to schedule, run, and troubleshoot these pipelines in another manner.
@@ -121,7 +131,7 @@ Adding this to the DAG definition allowed for file names in the `include/sql` di
 Note, a new Postgres connection was created, with name `postgres_daily_operational_conn`. This was done in a similar 
  manner as before (using the Astro CLI), but a different name was used, to ensure verbosity.
 
-### Advanced Daily Dashboard Refresh
+### Advanced Daily Dashboard Refresh DAG
 Sometimes, operational dashboards rely on a dataset that needs to be regularly refreshed. What's the best tool to do 
  this with? Airflow! Here, the `advanced_daily_dashboard_refresh` DAG pulls data from disparate sources, and transforms,
  persists, and loads the data as needed. After this DAG finishes running (daily), a tool like Tableau, Looker, or Power 
@@ -166,6 +176,52 @@ After the data was persisted in S3 and moved into Snowflake, an `EmptyOperator` 
   
 
 ## Testing
+To thoroughly test the four DAGs built for the Panel Interview, a number of approaches were taken including testing 
+ using the Astro CLI, unit-testing, and end-to-end testing of DAGs in the UI.
+
+### Using the Astro CLI
+Using the Astro CLI, it's easy to test DAGs (and individual tasks). There are two commands that are quite useful:
+
+```commandline
+> astro dev run dags test <dag-id> <execution-date>
+```
+
+```commandline
+> astro dev run tasks test <dag-id> <task-id> <execution-date>
+```
+
+The first command runs the specified DAG end-to-end for the execution date that is passed. This is useful if you only
+ want to run the DAG once, for a specific date. However, if you're interested in how your DAG will perform in a 
+ production-like setting, check out the **End-to-end Testing** section below. In addition to testing an entire DAG run, 
+ you can test individual tasks using the `astro dev run tasks test ...` command.
+
+For more information about using the Astro CLI to test your project, please check out this link: 
+ <https://docs.astronomer.io/learn/testing-airflow#the-astro-cli>
+ 
+
+### Unit-testing
+When developing any sort of data pipeline, adding unit-testing to your development and testing process helps to generate
+ better results. The `tests/` directory in the root of the Airflow project is automatically created (with a sample file
+ showing a few unit tests) when `astro dev init` is run. In a normal workflow, I like to create a unit tests for the 
+ following:
+
+- Each DAG definition
+- Any helpers defined in the `include/` directory
+- Any custom operators or other tools defined in the `plugins/` directory
+
+With the Astro CLI, it's easy to execute any unit tests written with the `pytest` library. Using the command
+ `astro dev pytest`, all tests in the `tests/` directory are executed. Running these unit tests not only helps you catch 
+ errors during development, but will also make it easier to catch warnings or deprecations. For this project, I wrote 
+ sample unit tests for the `market_etl__traditional` DAG, the helpers in the 
+ `include/market_etl__traditional__helpers.py` file, and the `CustomS3ToSnowflakeOperator`.
+
+### End-to-end Testing
+After DAGs have been manually tested and unit-tested, it's important to test them end-to-end using the Airflow UI. To do
+ this, just navigate to the Airflow UI, and turn on the toggle to start the DAG. The UI makes it easy to catch any 
+ errors that pop-up, and ensure performance is as expected. For example, for the `advanced_daily_dashboard_refresh` DAG,
+ I expected the `market_closed_notification` task to be triggered by the upstream `@task.branch` on weekends, and 
+ Memorial Day. The Airflow made this easy to identify, and helped me validate performance. When initially developing, 
+ using the UI and the "Logs" functionality helps when debugging.
 
 ## Obstacles
 Throughout this process, there was one main obstacle I stumbled upon; a limited "data stack" with which to work with to

@@ -25,7 +25,7 @@ from include.market_etl__taskflow_api__helpers import load_market_data
     # Using the same parameters as the DAG using traditional operators
     start_date=datetime(2023, 8, 1),
     end_date=datetime(2023, 8, 31),
-    schedule_interval="0 9 * * 1-5",
+    schedule="0 9 * * 1-5",
     catchup=True,
     max_active_runs=1,
     render_template_as_native_obj=True,

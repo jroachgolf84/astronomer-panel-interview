@@ -33,7 +33,7 @@ with DAG(
     # Use a different date range than the previously defined DAGs
     start_date=datetime(2023, 5, 1),
     end_date=datetime(2023, 5, 31),
-    schedule_interval="0 12 * * *",
+    schedule="0 12 * * *",
     catchup=True,
     max_active_runs=1,
     template_searchpath="include/sql",  # This path can be searched for templated SQL queries (in .sql files)

@@ -14,7 +14,7 @@ Date: 2023-11-30
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.operators.empty import EmptyOperator
-from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 
 # Instantiate the DAG
@@ -22,7 +22,7 @@ with DAG(
     dag_id="daily_operations_view_update",
     start_date=datetime(2023, 4, 1),
     end_date=datetime(2023, 6, 30),
-    schedule_interval="0 12 * * *",
+    schedule="0 12 * * *",
     catchup=True,
     max_active_runs=1,
     template_searchpath="include/sql",  # This path can be searched for templated SQL queries (in .sql files)
@@ -38,10 +38,10 @@ with DAG(
         task_id="start"
     )
 
-    update_guest_attendance_view: PostgresOperator = PostgresOperator(
+    update_guest_attendance_view: SQLExecuteQueryOperator = SQLExecuteQueryOperator(
         dag=dag,
         task_id="update_guest_attendance_view",
-        postgres_conn_id="postgres_daily_operational_conn",
+        conn_id="postgres_daily_operational_conn",
         # Query for verbosity, there is also a file for this
         sql="""
         CREATE OR REPLACE VIEW daily_operations.admission_by_entrance AS (
@@ -59,24 +59,24 @@ with DAG(
         """
     )
 
-    update_inventory_view: PostgresOperator = PostgresOperator(
+    update_inventory_view: SQLExecuteQueryOperator = SQLExecuteQueryOperator(
         dag=dag,
         task_id="update_inventory_view",
-        postgres_conn_id="postgres_daily_operational_conn",
+        conn_id="postgres_daily_operational_conn",
         sql="update_inventory_view.sql"
     )
 
-    update_item_sales_view: PostgresOperator = PostgresOperator(
+    update_item_sales_view: SQLExecuteQueryOperator = SQLExecuteQueryOperator(
         dag=dag,
         task_id="update_item_sales_view",
-        postgres_conn_id="postgres_daily_operational_conn",
+        conn_id="postgres_daily_operational_conn",
         sql="update_item_sales_view.sql"
     )
 
-    update_labor_view: PostgresOperator = PostgresOperator(
+    update_labor_view: SQLExecuteQueryOperator = SQLExecuteQueryOperator(
         dag=dag,
         task_id="update_labor_view",
-        postgres_conn_id="postgres_daily_operational_conn",
+        conn_id="postgres_daily_operational_conn",
         sql="update_labor_view.sql"
     )
 
