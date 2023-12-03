@@ -10,9 +10,9 @@ Date: 2023-12-02
 
 # Import modules here
 from airflow.decorators import task
-from airflow.models import Variable
 from typing import List, Dict, Any
-import requests
+
+from include.market_etl__traditional__helpers import extract_market_data__callable
 
 
 # While duplicate code, define function here for clarity
@@ -20,7 +20,10 @@ import requests
 def extract_market_data(**context: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Description:
-        Pull market data from the Polygon API using the requests module
+        Pull market data from the Polygon API using the requests module.
+
+        Since this task was defined within a DAG-definition file, it was added to this directory. An existing callable
+        was invoked, rather than copying and pasting logic.
 
     Params:
         **context (Dict[str, Any])
@@ -28,28 +31,9 @@ def extract_market_data(**context: Dict[str, Any]) -> List[Dict[str, Any]]:
     Returns:
         raw_dataset (List[Dict[str, Any]])
     """
-    # Instantiate a list of tickers that will be pulled and looped over
-    stock_tickers: List[str] = [
-        "AAPL",
-        "AMZN"
-    ]
 
-    # Set variables
-    polygon_api_key: str = Variable.get("POLYGON_API_KEY")
-    ds: str = context.get("ds")
-
-    # Create a list to append the response data to
-    raw_dataset: List[Dict[str, Any]] = []
-
-    # Loop through each ticker
-    for stock_ticker in stock_tickers:
-        # Build the URL, and make a request to the API
-        url: str = f"https://api.polygon.io/v1/open-close/{stock_ticker}/{ds}?adjusted=true&apiKey={polygon_api_key}"
-        response: requests.Response = requests.get(url)
-        raw_dataset.append(response.json())
-
-    # Return the raw data
-    return raw_dataset
+    # Call the existing callable
+    return extract_market_data__callable(**context)
 
 
 # Market holidays

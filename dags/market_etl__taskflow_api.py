@@ -40,7 +40,7 @@ def market_etl__taskflow_api():
     def extract_market_data(**context: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Description:
-            Pull market data from the Polygon API using the requests module
+            Pull market data from the Polygon API using the requests module.
 
         Params:
             **context (Dict[str, Any])
