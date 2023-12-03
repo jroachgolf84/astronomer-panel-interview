@@ -139,13 +139,14 @@ Some of the logic from the DAGs built before were used to build this more comple
 ...
 ```
 
-In parallel, four tradition task groups were created using `with TaskGroup(...)` to move data from Postgres to S3, 
- before also moving this data to Snowflake. These task groups were dynamically-generated using a list of dictionaries 
- defined in the `include/advanced_daily_dashboard_refresh__helpers.py` file. Within each of these task groups, two 
- custom operators were instantiated. These were the `CustomPostgresToS3Operator`, and the `CustomS3ToSnowflake`
- operator. These were built in the `plugins/` directory, and inherited from the `BaseOperator`. This custom operators
- where somewhat transient, and only printed the actions that would be performed. The ability to build custom operators
- illustrate the extensibility of Airflow, and it's ability to cater to a wide range of users via abstraction. 
+In parallel, four task groups were created using the more traditional`with TaskGroup(...)` to move data from Postgres to 
+ S3, before also moving this data to Snowflake. These task groups were dynamically-generated using a list of 
+ dictionaries defined in the `include/advanced_daily_dashboard_refresh__helpers.py` file. Within each of these task 
+ groups, two custom operators were instantiated. These were the `CustomPostgresToS3Operator`, and the 
+ `CustomS3ToSnowflake` operator. These were built in the `plugins/` directory, and inherited from the `BaseOperator`. 
+ These custom operators where somewhat transient, and only printed the actions that would be performed. The ability to 
+ build custom operators illustrate the extensibility of Airflow, and it's ability to streamline the data pipeline 
+ development process via re-usability. 
 
 After the data was persisted in S3 and moved into Snowflake, an `EmptyOperator` was used to simulate archiving the data
  previously moved to S3. For the entire graph view of the DAG, please see below:
@@ -156,3 +157,7 @@ After the data was persisted in S3 and moved into Snowflake, an `EmptyOperator` 
 ## Testing
 
 ## Obstacles
+Throughout this process, there was one main obstacle I stumbled upon; a limited "data stack" with which to work with to
+ develop my DAGs. It's different using Airflow for a project like this, versus developing in an enterprise-setting. I 
+ ended up creating a free-tier Postgres RDS instance in my personal AWS account, and created custom operators to mock 
+ interacting with S3 and Snowflake, all of which worked great for building this project and presentation.
